@@ -55,6 +55,9 @@ func run(cmd *cobra.Command, args []string) {
 	userRepo := repository.NewUserRepository(db.DB, keeper)
 	userUsecase := usecase.NewUserUsecase(userRepo)
 
+	eventRepo := repository.NewEventRepository(db.DB, keeper)
+	eventUsecase := usecase.NewEventUsecase(eventRepo)
+
 	go func() {
 		// Start HTTP server
 		e := echo.New()
@@ -63,7 +66,7 @@ func run(cmd *cobra.Command, args []string) {
 		e.Use(middleware.Recover())
 		e.Use(middleware.CORSWithConfig(middleware.DefaultCORSConfig))
 
-		svc := service.NewHTTPService(userUsecase)
+		svc := service.NewHTTPService(userUsecase, eventUsecase)
 		svc.Routes(e)
 
 		errCh <- e.Start(":" + config.HTTPPort())

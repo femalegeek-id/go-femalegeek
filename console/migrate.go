@@ -4,11 +4,12 @@ import (
 	"database/sql"
 	"strconv"
 
+	"femalegeek/config"
+
 	"github.com/kumparan/go-utils"
 	migrate "github.com/rubenv/sql-migrate"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"femalegeek/config"
 )
 
 var migrateCmd = &cobra.Command{

@@ -10,6 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// UserStatus enum
 const (
 	UserStatusPending  = UserStatus("PENDING")
 	UserStatusActive   = UserStatus("ACTIVE")
@@ -18,11 +19,15 @@ const (
 )
 
 type (
+	// UserStatus :nodoc:
 	UserStatus string
-	User       struct {
+
+	// User :nodoc:
+	User struct {
 		ID        int64
 		FullName  string
 		NickName  string
+		UserName  string
 		Job       string
 		Company   string
 		Phone     string
@@ -34,6 +39,7 @@ type (
 	}
 )
 
+// TableName :nodoc:
 func (User) TableName() string {
 	return "users"
 }
@@ -65,7 +71,7 @@ func NewUserFromInterface(i interface{}) (u *User, err error) {
 	return
 }
 
-// ErrorResponse represent error response from kitabisa
+// ErrorResponse represent error
 type ErrorResponse struct {
 	Code    int64  `json:"code"`
 	Message string `json:"message,omitempty"`

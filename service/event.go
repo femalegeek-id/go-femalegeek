@@ -10,9 +10,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// FindUserByID find user detail
-func (s *HTTPService) FindUserByID(e echo.Context) error {
-	var user *model.User
+// FindEventByID find event detail
+func (s *HTTPService) FindEventByID(e echo.Context) error {
+	var event *model.Event
 	ctx := e.Request().Context()
 	id := e.Param("id")
 	if id == "" {
@@ -23,16 +23,16 @@ func (s *HTTPService) FindUserByID(e echo.Context) error {
 		"id": id,
 	})
 
-	user, err := s.userUsecase.FindByID(ctx, utils.StringToInt64(id))
+	event, err := s.eventUsecase.FindByID(ctx, utils.StringToInt64(id))
 	switch {
 	case err == usecase.ErrNotFound:
 		return e.JSON(http.StatusNotFound, NotFoundResponse())
 	case err != nil:
 		logger.Error(err)
 		return e.JSON(http.StatusInternalServerError, AnotherErrorResponse(err.Error()))
-	case user == nil:
+	case event == nil:
 		return e.JSON(http.StatusNotFound, NotFoundResponse())
 	}
 
-	return e.JSON(http.StatusOK, user)
+	return e.JSON(http.StatusOK, event)
 }

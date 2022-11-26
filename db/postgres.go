@@ -28,7 +28,7 @@ var (
 type GormLogger struct{}
 
 // InitializePostgresConn :nodoc:
-func InitializePostgresConn() {   
+func InitializePostgresConn() {
 	conn, err := openPostgresConn(config.DatabaseDSN())
 	if err != nil {
 		log.WithField("databaseDSN", config.DatabaseDSN()).Fatal("failed to connect postgres database: ", err)

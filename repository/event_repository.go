@@ -14,45 +14,45 @@ import (
 )
 
 type (
-	userRepo struct {
+	eventRepo struct {
 		db          *gorm.DB
 		cacheKeeper cacher.Keeper
 	}
 )
 
-// NewUserRepository create new repository
-func NewUserRepository(d *gorm.DB, k cacher.Keeper) model.UserRepository {
-	return &userRepo{
+// NewEventRepository create new repository
+func NewEventRepository(d *gorm.DB, k cacher.Keeper) model.EventRepository {
+	return &eventRepo{
 		db:          d,
 		cacheKeeper: k,
 	}
 }
 
 // FindByID find object with specific id
-func (r *userRepo) FindByID(ctx context.Context, id int64) (user *model.User, err error) {
+func (r *eventRepo) FindByID(ctx context.Context, id int64) (event *model.Event, err error) {
 	var (
 		logger = log.WithFields(log.Fields{
 			"context": utils.DumpIncomingContext(ctx),
 			"id":      id})
-		cacheKey = model.NewUserCacheKeyByID(id)
-		u        model.User
+		cacheKey = model.NewEventCacheKeyByID(id)
+		e        model.Event
 	)
 
 	if !config.DisableCaching() {
-		user, mu, err := r.findFromCacheByKey(cacheKey)
+		event, mu, err := r.findFromCacheByKey(cacheKey)
 		if err != nil {
 			logger.Error(err)
 			return nil, err
 		}
 
 		if mu == nil {
-			return user, nil
+			return event, nil
 		}
 
 		defer cacher.SafeUnlock(mu)
 	}
 
-	err = r.db.Take(&u, "id = ?", id).Error
+	err = r.db.Take(&e, "id = ?", id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = r.cacheKeeper.StoreNil(cacheKey)
@@ -65,17 +65,17 @@ func (r *userRepo) FindByID(ctx context.Context, id int64) (user *model.User, er
 		return nil, err
 	}
 
-	user = &u
+	event = &e
 
-	err = r.cacheKeeper.StoreWithoutBlocking(cacher.NewItem(cacheKey, utils.ToByte(user)))
+	err = r.cacheKeeper.StoreWithoutBlocking(cacher.NewItem(cacheKey, utils.ToByte(event)))
 	if err != nil {
 		logger.Error(err)
 	}
 
-	return user, nil
+	return event, nil
 }
 
-func (r *userRepo) findFromCacheByKey(key string) (u *model.User, mu *redsync.Mutex, err error) {
+func (r *eventRepo) findFromCacheByKey(key string) (e *model.Event, mu *redsync.Mutex, err error) {
 	reply, mu, err := r.cacheKeeper.GetOrLock(key)
 	if err != nil {
 		return
@@ -85,7 +85,7 @@ func (r *userRepo) findFromCacheByKey(key string) (u *model.User, mu *redsync.Mu
 		return
 	}
 
-	u, err = model.NewUserFromInterface(reply)
+	e, err = model.NewEventFromInterface(reply)
 
 	return
 }

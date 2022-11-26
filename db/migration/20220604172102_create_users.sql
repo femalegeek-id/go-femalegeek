@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS "users" (
     "id" BIGINT NOT NULL,
     "full_name" TEXT NOT NULL,
     "nick_name" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
     "job" TEXT NOT NULL,
     "company" TEXT NOT NULL,
     "email" TEXT UNIQUE,

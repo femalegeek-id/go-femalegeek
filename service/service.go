@@ -2,12 +2,9 @@ package service
 
 import (
 	"femalegeek/repository/model"
-	"femalegeek/usecase"
 	"net/http"
 
-	"github.com/kumparan/go-utils"
 	"github.com/labstack/echo"
-	log "github.com/sirupsen/logrus"
 )
 
 // NotFoundResponse returns when bad response return
@@ -37,40 +34,15 @@ type Service interface {
 
 // HTTPService implements Service
 type HTTPService struct {
-	userUsecase model.UserUsecase
-}
-
-// FindUserByID find user detail
-func (s *HTTPService) FindUserByID(e echo.Context) error {
-	var user *model.User
-	ctx := e.Request().Context()
-	id := e.Param("id")
-	if id == "" {
-		return e.JSON(http.StatusBadRequest, AnotherErrorResponse("Mohon masukkan id"))
-	}
-
-	logger := log.WithFields(log.Fields{
-		"id": id,
-	})
-
-	user, err := s.userUsecase.FindByID(ctx, utils.StringToInt64(id))
-	switch {
-	case err == usecase.ErrNotFound:
-		return e.JSON(http.StatusNotFound, NotFoundResponse())
-	case err != nil:
-		logger.Error(err)
-		return e.JSON(http.StatusInternalServerError, AnotherErrorResponse(err.Error()))
-	case user == nil:
-		return e.JSON(http.StatusNotFound, NotFoundResponse())
-	}
-
-	return e.JSON(http.StatusOK, user)
+	userUsecase  model.UserUsecase
+	eventUsecase model.EventUsecase
 }
 
 // NewHTTPService creates intance of service
-func NewHTTPService(userUsecase model.UserUsecase) *HTTPService {
+func NewHTTPService(userUsecase model.UserUsecase, eventUsecase model.EventUsecase) *HTTPService {
 	return &HTTPService{
-		userUsecase: userUsecase,
+		userUsecase:  userUsecase,
+		eventUsecase: eventUsecase,
 	}
 }
 
@@ -80,4 +52,5 @@ func (s *HTTPService) Routes(route *echo.Echo) {
 		return c.String(http.StatusOK, "FemaleGeek Web")
 	})
 	route.GET("user/:id/", s.FindUserByID)
+	route.GET("event/:id/", s.FindEventByID)
 }
